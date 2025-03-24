@@ -2,61 +2,100 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Popup Design - Easy Tutorials</title>
-    <link rel="stylesheet" href="style.css"> </head>
+    <title>Horizontal Scroll Image Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-    <div class="container">
-        <button type="submit" class="btn" onclick="openPopup()">Submit</button>
-        <div class="popup" id="popup">
-            <img src="https://www.citypng.com/public/uploads/preview/hd-round-green-tick-mark-symbol-icon-png-701751695051688lzyoxnzg09.png">
-            <h2>Thank you!</h2>
-            <p>Your details has been successfully submitted. Thanks!</p>
-            <p id="countdown"></p>
-            <button type="button" onclick="closePopup()">OK</button>
+    <div class="gallery-wrap">
+        <img src="https://static.thenounproject.com/png/251451-200.png" id="backBtn">
+        <div class="gallery">
+            <div>
+                <span><img src="https://img.freepik.com/free-photo/people-office-work-day_23-2150690162.jpg" class="gallery-img"></span>
+                <span><img src="https://media.istockphoto.com/id/1472932742/photo/group-of-multigenerational-people-hugging-each-others-support-multiracial-and-diversity.jpg?s=612x612&w=0&k=20&c=Zm1MthU_G_LzfjBFBaMORRnuBhMsCjPQ38Ksfg4zl9g=" class="gallery-img"></span>
+                <span><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9Gvl-o1u8qzqRu_D5UhHh9_-pczQBMluwaA&s" class="gallery-img"></span>
+            </div>
+            <div>
+                <span><img src="https://img.freepik.com/free-photo/people-posing-together-registration-day_23-2149096793.jpg" class="gallery-img"></span>
+                <span><img src="https://media.gettyimages.com/id/200244581-003/photo/large-crowd-of-people-looking-up-smiling-portrait-elevated-view.jpg?s=612x612&w=gi&k=20&c=jBXSpcZ2KmsX9pBLlGurH3sM2qCvQ7stgT-EiA_E_VQ=" class="gallery-img"></span>
+                <span><img src="https://media.istockphoto.com/id/1480574526/photo/happy-multigenerational-people-having-fun-sitting-on-grass-in-a-public-park.jpg?s=612x612&w=0&k=20&c=iIzSiY2FK9mWTCmV8Ip8zpvXma7f1Qbd-UuKXNJodPg=" class="gallery-img"></span>
+            </div>
         </div>
+        <img src="https://www.pngarts.com/files/3/Next-Button-Transparent-Image.png" id="nextBtn">
     </div>
 
+    <div id="overlay"></div>
+    <div id="popup-img">
+        <img id="enlarged-img">
+    </div>
+
+    <div class="navigation-dots"></div>
+
     <script>
-        // Lấy phần tử popup từ HTML và lưu vào biến 'popup'
-        let popup = document.getElementById("popup");
-        // Lấy phần tử hiển thị đếm ngược và lưu vào biến 'countdownDisplay'
-        let countdownDisplay = document.getElementById("countdown");
-        // Khởi tạo thời gian đếm ngược là 5 giây
-        let countdownTime = 5;
-        // Khởi tạo biến 'countdownInterval' để lưu ID của bộ đếm ngược
-        let countdownInterval;
+        let scrollContainer = document.querySelector(".gallery");
+let backBtn = document.getElementById("backBtn");
+let nextBtn = document.getElementById("nextBtn");
+let overlay = document.getElementById("overlay");
+let popupImg = document.getElementById("popup-img");
+let enlargedImg = document.getElementById("enlarged-img");
+let galleryImages = document.querySelectorAll(".gallery-img");
+let navigationDots = document.querySelector(".navigation-dots");
 
-        // Hàm 'openPopup' được gọi khi nút "Submit" được nhấn
-        function openPopup() {
-            // Thêm class 'open-popup' vào phần tử popup để hiển thị nó (dựa vào css trong style.css)
-            popup.classList.add("open-popup");
-            // Đặt lại thời gian đếm ngược về 5 giây mỗi khi popup được mở
-            countdownTime = 5;
-            // Hiển thị thời gian đếm ngược ban đầu trong phần tử 'countdownDisplay'
-            countdownDisplay.textContent = "Popup closes in: " + countdownTime + " seconds";
-            // Bắt đầu bộ đếm ngược, gọi hàm 'updateCountdown' mỗi 1000ms (1 giây)
-            countdownInterval = setInterval(updateCountdown, 1000);
-        }
+// Tính toán chiều rộng của một ảnh và số lượng ảnh hiển thị trên màn hình
+const imageWidth = galleryImages[0].offsetWidth;
+const imagesPerPage = Math.floor(scrollContainer.offsetWidth / imageWidth);
 
-        // Hàm 'closePopup' được gọi khi nút "OK" được nhấn hoặc khi đếm ngược kết thúc
-        function closePopup() {
-            // Xóa class 'open-popup' khỏi phần tử popup để ẩn nó
-            popup.classList.remove("open-popup");
-            // Dừng bộ đếm ngược bằng cách xóa interval đã tạo
-            clearInterval(countdownInterval);
-        }
+// Hàm cuộn ảnh bằng nút tiến lùi
+function scrollGallery(direction) {
+    scrollContainer.style.scrollBehavior = "smooth";
+    scrollContainer.scrollLeft += direction * imageWidth * imagesPerPage;
 
-        // Hàm 'updateCountdown' được gọi mỗi giây bởi 'setInterval'
-        function updateCountdown() {
-            // Giảm thời gian đếm ngược đi 1 giây 
-            countdownTime--;
-            // Cập nhật nội dung của phần tử 'countdownDisplay' với thời gian đếm ngược mới
-            countdownDisplay.textContent = "Popup closes in: " + countdownTime + " seconds";
-            // Nếu thời gian đếm ngược đạt đến 0, đóng popup
-            if (countdownTime <= 0) {
-                closePopup();
-            }
+    // Kiểm tra xem vị trí cuộn có vượt quá giới hạn hay không
+    if (scrollContainer.scrollLeft < 0) {
+        scrollContainer.scrollLeft = 0;
+    } else if (scrollContainer.scrollLeft > scrollContainer.scrollWidth - scrollContainer.offsetWidth) {
+        scrollContainer.scrollLeft = scrollContainer.scrollWidth - scrollContainer.offsetWidth;
+    }
+
+    // Cập nhật chấm điều hướng
+    const activeIndex = Math.round(scrollContainer.scrollLeft / (imageWidth * imagesPerPage));
+    updateActiveDot(activeIndex);
+}
+
+// Thêm sự kiện click cho nút tiến lùi
+nextBtn.addEventListener("click", () => {
+    scrollGallery(1);
+});
+
+backBtn.addEventListener("click", () => {
+    scrollGallery(-1);
+});
+
+// Tạo các chấm điều hướng
+for (let i = 0; i < scrollContainer.children[0].children.length; i++) {
+    const dot = document.createElement("div");
+    dot.classList.add("dot");
+    dot.addEventListener("click", () => {
+        scrollContainer.style.scrollBehavior = "smooth";
+        scrollContainer.scrollLeft = i * 900; 
+        updateActiveDot(i);
+    });
+    navigationDots.appendChild(dot);
+}
+
+// Cập nhật chấm điều hướng đang hoạt động
+function updateActiveDot(index) {
+    const dots = document.querySelectorAll(".navigation-dots .dot");
+    dots.forEach((dot, i) => {
+        if (i === index) {
+            dot.classList.add("active");
+        } else {
+            dot.classList.remove("active");
         }
+    });
+}
+
+// Cập nhật chấm điều hướng ban đầu
+updateActiveDot(0);
     </script>
 </body>
 </html>
